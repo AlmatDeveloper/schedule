@@ -32,7 +32,6 @@ public class ScheduleCalcImpl implements ScheduleCalc {
                                     (year + y) + " " +
                                     (hours[k]) + ":" +
                                     (minutes[l]);
-
                             if (isValidDate(dateTemp)) {
                                 try {
                                     if(checkDayOfWeek(dateTemp, weekDays)) {
@@ -88,9 +87,11 @@ public class ScheduleCalcImpl implements ScheduleCalc {
 
     @Override
     public Date nextLaunchDate(List<Date> datesFromMatrix, Date referenceDate) {
-        for (Date date: datesFromMatrix) {
-            if(date.after(referenceDate)) {
-                return date;
+        if(!datesFromMatrix.isEmpty()) {
+            for (Date date: datesFromMatrix) {
+                if(date.after(referenceDate)) {
+                    return date;
+                }
             }
         }
         return null;
