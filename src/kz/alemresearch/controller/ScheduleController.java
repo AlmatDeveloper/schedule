@@ -1,20 +1,19 @@
 package kz.alemresearch.controller;
 
-import kz.alemresearch.model.Schedule;
+import kz.alemresearch.dto.ScheduleDto;
+import kz.alemresearch.model.ScheduleModel;
 import kz.alemresearch.service.ScheduleCalc;
 import kz.alemresearch.service.impl.ScheduleCalcImpl;
 
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class ScheduleController {
     ScheduleCalc scheduleCalc = new ScheduleCalcImpl();
 
-    public Date getNextLaunchDate(Schedule schedule) throws ParseException {
-        return scheduleCalc.nextLaunchDate(scheduleCalc.getDatesFromMatrix(schedule.getScheduleMatrix(),
-                Integer.parseInt(schedule.getReferenceDate().substring(6, 10))),
-                new SimpleDateFormat("dd-MM-yyyy HH:mm").parse(schedule.getReferenceDate()));
+    public Date getNextLaunchDate(ScheduleDto scheduleDto) throws ParseException {
+        ScheduleModel scheduleModel = scheduleDto.toScheduleModel(scheduleDto);
+        return scheduleCalc.getDatesFromMatrix(scheduleModel);
     }
 
 }

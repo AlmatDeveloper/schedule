@@ -1,16 +1,16 @@
 package kz.alemresearch.service;
 
 
+import kz.alemresearch.model.ScheduleModel;
+
 import java.util.Date;
-import java.util.List;
 
 public interface ScheduleCalc {
 
-    List<Date> getDatesFromMatrix(String scheduleMatrix, int year);
+    Date getDatesFromMatrix(ScheduleModel scheduleModel);
 
     boolean isValidDate(String dateFromScheduleMatrix);
 
     boolean checkDayOfWeek(String dateFromScheduleMatrix, String[] daysOfWeek);
 
-    Date nextLaunchDate(List<Date> datesFromMatrix, Date referenceDate);
 }

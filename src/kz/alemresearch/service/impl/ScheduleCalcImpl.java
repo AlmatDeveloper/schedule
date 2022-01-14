@@ -1,43 +1,41 @@
 package kz.alemresearch.service.impl;
 
+import kz.alemresearch.model.ScheduleModel;
 import kz.alemresearch.service.ScheduleCalc;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 
 public class ScheduleCalcImpl implements ScheduleCalc {
 
     @Override
-    public List<Date> getDatesFromMatrix(String scheduleMatrix, int year) {
-        String[] months = scheduleMatrix.split(";")[4].split(",");
-        String[] monthDays = scheduleMatrix.split(";")[3].split(",");
-        String[] weekDays = scheduleMatrix.split(";")[2].split(",");
-        String[] hours = scheduleMatrix.split(";")[1].split(",");
-        String[] minutes = scheduleMatrix.split(";")[0].split(",");
+    public Date getDatesFromMatrix(ScheduleModel scheduleModel) {
 
-        List<Date> dateList = new ArrayList<>();
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(scheduleModel.getReferenceDate());
+        int yearCounter = calendar.get(Calendar.YEAR);
+        boolean flag = true;
 
-        for (int y = 0; y <= 1; y++) {
-            for (int i = 0; i < months.length ; i++) {
-                for (int j = 0; j < monthDays.length; j++) {
-                    for (int k = 0; k < hours.length; k++) {
-                        for (int l = 0; l < minutes.length; l++) {
+        while (flag) {
+            for (int i = 0; i < scheduleModel.getMonths().length; i++) {
+                for (int j = 0; j < scheduleModel.getMonthDays().length; j++) {
+                    for (int k = 0; k < scheduleModel.getHours().length; k++) {
+                        for (int l = 0; l < scheduleModel.getMinutes().length; l++) {
 
-                            String dateTemp = (monthDays[j]) + "-" +
-                                    (months[i]) + "-" +
-                                    (year + y) + " " +
-                                    (hours[k]) + ":" +
-                                    (minutes[l]);
+                            String dateTemp = (scheduleModel.getMonthDays()[j]) + "-" +
+                                    (scheduleModel.getMonths()[i]) + "-" +
+                                    (yearCounter) + " " +
+                                    (scheduleModel.getHours()[k]) + ":" +
+                                    (scheduleModel.getMinutes()[l]);
+
                             if (isValidDate(dateTemp)) {
                                 try {
-                                    if(checkDayOfWeek(dateTemp, weekDays)) {
-                                        dateList.add(new SimpleDateFormat("dd-MM-yyyy HH:mm").parse(dateTemp));
-                                        if(y == 1) {
-                                            break;
+                                    if (checkDayOfWeek(dateTemp, scheduleModel.getWeekDays())) {
+                                        if (new SimpleDateFormat("dd-MM-yyyy HH:mm").parse(dateTemp).after(scheduleModel.getReferenceDate())) {
+                                            flag = false;
+                                            return new SimpleDateFormat("dd-MM-yyyy HH:mm").parse(dateTemp);
                                         }
                                     }
                                 } catch (ParseException e) {
@@ -48,15 +46,16 @@ public class ScheduleCalcImpl implements ScheduleCalc {
                     }
                 }
             }
+            yearCounter++;
         }
-
-        return dateList;
+        return null;
     }
 
     @Override
     public boolean isValidDate(String dateFromScheduleMatrix) {
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm");
         dateFormat.setLenient(false);
+
         try {
             dateFormat.parse(dateFromScheduleMatrix.trim());
         } catch (ParseException pe) {
@@ -74,7 +73,7 @@ public class ScheduleCalcImpl implements ScheduleCalc {
             int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
 
             for (int i = 0; i < daysOfWeek.length; i++) {
-                if(dayOfWeek == Integer.parseInt(daysOfWeek[i])) {
+                if (dayOfWeek == Integer.parseInt(daysOfWeek[i])) {
                     return true;
                 }
             }
@@ -84,17 +83,4 @@ public class ScheduleCalcImpl implements ScheduleCalc {
         }
         return false;
     }
-
-    @Override
-    public Date nextLaunchDate(List<Date> datesFromMatrix, Date referenceDate) {
-        if(!datesFromMatrix.isEmpty()) {
-            for (Date date: datesFromMatrix) {
-                if(date.after(referenceDate)) {
-                    return date;
-                }
-            }
-        }
-        return null;
-    }
-
 }
